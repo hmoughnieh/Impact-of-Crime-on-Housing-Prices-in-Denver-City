@@ -47,12 +47,6 @@ ORDER BY Year, Month
 SELECT *
 FROM Crime_Data
 
---Create a SN column to be used later on as a primary key
-SELECT ROW_NUMBER() OVER (ORDER BY Model) AS SN, *
-INTO SalesBook2
-FROM SalesBook
-
-
 -- Aggregate crime neighborhood names across the studied period and join them to land trasfer dataset on neighborhood name
 SELECT distinct L.NBHD_1 as NBHD_No, L.NBHD_1_CN AS NBHD_Name_Sales, C.NBHD_Name_Crime
 FROM Crime_Data C
@@ -64,11 +58,10 @@ order by NBHD_No
 
 -- Join Real Estate Sales data on Crime data using the Neighborhood Mapping Key on Neighborhood ID & Name and on month and year
 SELECT *
-FROM SalesBook2 S
+FROM (SELECT ROW_NUMBER() OVER (ORDER BY NBHD) AS SN, * FROM SalesBook) S
 Left join Neighborhood_Mapping M on S.NBHD = CAST(M.NBHD_No AS float)
 Inner join Crime_Data C on M.NBHD_Name_Crime = C.NBHD_Name_Crime
 	and S.SMONTH = C.Month
 	and S.SYEAR = C.Year
 ORDER by SN
-
 
